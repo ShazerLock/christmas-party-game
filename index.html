@@ -1,0 +1,2936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🎄 装饰我们的圣诞树 · 2026圣诞派对投票</title>
+  <style>
+    :root {
+      --bg-deep: #071912;
+      --bg-mid: #0d2b1f;
+      --bg-card: rgba(16, 42, 31, 0.78);
+      --bg-card-solid: #102a1f;
+      --border-gold: rgba(245, 200, 107, 0.28);
+      --border-soft: rgba(255, 255, 255, 0.12);
+      --gold: #f5c86b;
+      --gold-bright: #ffe599;
+      --red: #e04646;
+      --red-soft: rgba(224, 70, 70, 0.18);
+      --green-pine: #1e6b47;
+      --green-glow: #3ecf8e;
+      --cream: #fff9ee;
+      --muted: #b7cbbd;
+      --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.45);
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+      color: var(--cream);
+      background: radial-gradient(circle at 20% 10%, #15402e 0%, #091d15 55%, #040d09 100%);
+      overflow-x: hidden;
+    }
+
+    #snowCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 16px 64px;
+    }
+
+    /* 顶部栏 */
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 18px;
+      background: rgba(9, 28, 20, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-gold);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      filter: drop-shadow(0 0 10px rgba(245, 200, 107, 0.5));
+      animation: floatSlow 3.4s ease-in-out infinite;
+    }
+
+    .brand-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--gold-bright);
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-pills {
+      display: inline-flex;
+      background: rgba(0, 0, 0, 0.28);
+      padding: 4px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+    }
+
+    .nav-pill {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-pill.active {
+      background: linear-gradient(135deg, #d94343, #b52b2b);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(224, 70, 70, 0.45);
+    }
+
+    .badge-count {
+      background: rgba(245, 200, 107, 0.22);
+      color: var(--gold-bright);
+      font-size: 11px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 200, 107, 0.4);
+    }
+
+    .sound-btn {
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--cream);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sound-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    /* 主投票布局 */
+    .vote-layout {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--bg-card);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+    }
+
+    /* 左侧圣诞树舞台 */
+    .tree-stage {
+      position: sticky;
+      top: 16px;
+      padding: 18px 16px 16px;
+      overflow: hidden;
+    }
+
+    .tree-stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .tree-stage-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+
+    .tree-progress-chip {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(62, 207, 142, 0.15);
+      border: 1px solid rgba(62, 207, 142, 0.35);
+      color: #8af0bf;
+      font-weight: 600;
+    }
+
+    .tree-svg-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 50% 45%, rgba(245, 200, 107, 0.12), rgba(7, 25, 18, 0.2) 68%, transparent 75%);
+      border-radius: 18px;
+    }
+
+    #christmasTreeSvg {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .tree-caption-bar {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-soft);
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .tree-caption-bar strong {
+      color: var(--gold-bright);
+    }
+
+    .ornament-pop {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: popIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    .twinkle-light {
+      animation: twinkle 1.8s ease-in-out infinite alternate;
+    }
+
+    /* 右侧步骤区 */
+    .wizard-panel {
+      padding: 24px;
+    }
+
+    .step-dots {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .step-dot-btn {
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 7px 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .step-dot-btn.active {
+      background: rgba(245, 200, 107, 0.2);
+      border-color: var(--gold);
+      color: var(--gold-bright);
+      box-shadow: 0 0 15px rgba(245, 200, 107, 0.2);
+    }
+
+    .step-dot-btn.done {
+      background: rgba(62, 207, 142, 0.14);
+      border-color: rgba(62, 207, 142, 0.4);
+      color: #9bf2c6;
+    }
+
+    .step-header {
+      margin-bottom: 18px;
+    }
+
+    .step-kicker {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(245, 200, 107, 0.12);
+      border: 1px solid rgba(245, 200, 107, 0.25);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--cream);
+    }
+
+    .step-desc {
+      margin: 6px 0 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* 表单控件 */
+    .field-block {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 8px;
+    }
+
+    .field-hint {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .text-input, .textarea-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-soft);
+      border-radius: 12px;
+      color: var(--cream);
+      padding: 12px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .text-input:focus, .textarea-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 200, 107, 0.16);
+    }
+
+    .textarea-input {
+      resize: vertical;
+      min-height: 76px;
+      line-height: 1.5;
+    }
+
+    /* 头像网格 */
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .avatar-chip {
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 12px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      color: var(--cream);
+    }
+
+    .avatar-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .avatar-chip.selected {
+      border-color: var(--gold);
+      background: rgba(245, 200, 107, 0.18);
+      box-shadow: 0 0 18px rgba(245, 200, 107, 0.25);
+    }
+
+    .avatar-chip .emoji {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 3px;
+    }
+
+    .avatar-chip .label {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .avatar-chip.selected .label {
+      color: var(--gold-bright);
+    }
+
+    /* 选项卡片 */
+    .choice-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .choice-grid.single-col {
+      grid-template-columns: 1fr;
+    }
+
+    .choice-grid.three-col {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .choice-card {
+      position: relative;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.045);
+      border-radius: 14px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      color: var(--cream);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .choice-card:hover {
+      background: rgba(255, 255, 255, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .choice-card.selected {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, rgba(245, 200, 107, 0.2), rgba(224, 70, 70, 0.12));
+      box-shadow: 0 6px 20px rgba(245, 200, 107, 0.16);
+    }
+
+    .choice-icon {
+      font-size: 24px;
+      line-height: 1.1;
+      flex-shrink: 0;
+    }
+
+    .choice-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .choice-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+
+    .choice-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .choice-check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .choice-card.selected .choice-check {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #1f1400;
+      font-weight: 900;
+    }
+
+    /* 日期投票卡片 */
+    .date-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .date-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+    }
+
+    .date-row.state-best {
+      border-color: var(--gold);
+      background: rgba(245, 200, 107, 0.12);
+    }
+
+    .date-row.state-ok {
+      border-color: rgba(62, 207, 142, 0.55);
+      background: rgba(62, 207, 142, 0.1);
+    }
+
+    .date-row.state-no {
+      border-color: rgba(224, 70, 70, 0.35);
+      background: rgba(224, 70, 70, 0.08);
+    }
+
+    .date-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date-badge {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-gold);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.05;
+    }
+
+    .date-badge .m {
+      font-size: 10px;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .date-badge .d {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--cream);
+    }
+
+    .date-name {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .date-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .tri-toggle {
+      display: inline-flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tri-btn {
+      border: 1px solid var(--border-soft);
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 7px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tri-btn.active-best {
+      background: linear-gradient(135deg, #f5c86b, #d89b2b);
+      color: #261700;
+      border-color: var(--gold-bright);
+      box-shadow: 0 3px 12px rgba(245, 200, 107, 0.35);
+    }
+
+    .tri-btn.active-ok {
+      background: linear-gradient(135deg, #3ecf8e, #1d9a64);
+      color: #032215;
+      border-color: #7df0be;
+      box-shadow: 0 3px 12px rgba(62, 207, 142, 0.3);
+    }
+
+    .tri-btn.active-no {
+      background: linear-gradient(135deg, #d94c4c, #a72828);
+      color: #fff;
+      border-color: #f38888;
+    }
+
+    /* 底部导航按钮 */
+    .wizard-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14.5px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--cream);
+      border: 1px solid var(--border-soft);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e54949, #b92828);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(224, 70, 70, 0.4);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, #f8d27d, #d89b2b);
+      color: #241600;
+      box-shadow: 0 6px 22px rgba(245, 200, 107, 0.38);
+    }
+
+    .btn-gold:hover {
+      filter: brightness(1.06);
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #3ecf8e, #1a8f5c);
+      color: #031e12;
+      box-shadow: 0 6px 18px rgba(62, 207, 142, 0.3);
+    }
+
+    .btn-sm {
+      padding: 7px 12px;
+      font-size: 12.5px;
+      border-radius: 9px;
+    }
+
+    /* 个人通行证页 */
+    .passport-card {
+      background: linear-gradient(145deg, rgba(22, 56, 41, 0.95), rgba(11, 29, 21, 0.96));
+      border: 2px solid var(--gold);
+      border-radius: 20px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .passport-card::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px dashed rgba(245, 200, 107, 0.35);
+      border-radius: 15px;
+      pointer-events: none;
+    }
+
+    .passport-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(245, 200, 107, 0.3);
+    }
+
+    .passport-user {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .passport-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: rgba(245, 200, 107, 0.16);
+      border: 1.5px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
+
+    .passport-name {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--gold-bright);
+    }
+
+    .passport-status-tag {
+      display: inline-block;
+      margin-top: 3px;
+      font-size: 12px;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .tag-going {
+      background: rgba(62, 207, 142, 0.2);
+      color: #8df0c2;
+      border: 1px solid rgba(62, 207, 142, 0.45);
+    }
+
+    .tag-maybe {
+      background: rgba(245, 200, 107, 0.2);
+      color: var(--gold-bright);
+      border: 1px solid rgba(245, 200, 107, 0.45);
+    }
+
+    .tag-bless {
+      background: rgba(224, 70, 70, 0.22);
+      color: #ffb3b3;
+      border: 1px solid rgba(224, 70, 70, 0.45);
+    }
+
+    .passport-rows {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0;
+      font-size: 13.5px;
+    }
+
+    .passport-row {
+      display: flex;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .passport-row-k {
+      width: 82px;
+      flex-shrink: 0;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .passport-row-v {
+      flex: 1;
+      color: var(--cream);
+    }
+
+    .token-box {
+      background: rgba(0, 0, 0, 0.38);
+      border: 1px solid rgba(245, 200, 107, 0.32);
+      border-radius: 12px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #e6f2ea;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 170px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    /* 主办人合票开奖台 */
+    .host-view {
+      display: grid;
+      gap: 20px;
+    }
+
+    .host-section {
+      padding: 22px;
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .kpi-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .kpi-num {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--gold-bright);
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .date-rank-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .date-rank-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-soft);
+      border-radius: 15px;
+      padding: 14px 16px;
+    }
+
+    .date-rank-card.winner {
+      border: 1.5px solid var(--gold);
+      background: linear-gradient(135deg, rgba(245, 200, 107, 0.16), rgba(62, 207, 142, 0.08));
+      box-shadow: 0 8px 24px rgba(245, 200, 107, 0.16);
+    }
+
+    .date-rank-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .date-rank-title {
+      font-size: 16px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .winner-pill {
+      background: var(--gold);
+      color: #241600;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 9px;
+      border-radius: 999px;
+    }
+
+    .date-rank-score {
+      font-size: 13px;
+      font-weight: 700;
+      color: #9bf2c6;
+    }
+
+    .date-who {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .poll-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .poll-box {
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .poll-box h4 {
+      margin: 0 0 12px;
+      font-size: 14.5px;
+      color: var(--gold-bright);
+    }
+
+    .bar-item {
+      margin-bottom: 10px;
+    }
+
+    .bar-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .bar-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      margin-bottom: 4px;
+      gap: 8px;
+    }
+
+    .bar-track {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #3ecf8e, #f5c86b);
+      transition: width 0.45s ease;
+    }
+
+    .group-tree-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .voter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .voter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-soft);
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--cream);
+      transition: 0.18s;
+    }
+
+    .voter-chip:hover {
+      border-color: var(--gold);
+      background: rgba(245, 200, 107, 0.15);
+    }
+
+    .voter-del {
+      border: none;
+      background: rgba(224, 70, 70, 0.25);
+      color: #ffb8b8;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 11px;
+      line-height: 1;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bless-wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .bless-note {
+      background: rgba(224, 70, 70, 0.12);
+      border: 1px solid rgba(245, 200, 107, 0.3);
+      border-radius: 13px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(16, 44, 32, 0.96);
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 100;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 90;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      max-width: 460px;
+      width: 100%;
+      background: #102a1f;
+      border: 1.5px solid var(--gold);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .inline-alert {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(245, 200, 107, 0.12);
+      border: 1px solid rgba(245, 200, 107, 0.35);
+      font-size: 13px;
+      color: var(--cream);
+      line-height: 1.5;
+    }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.2); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.45; transform: scale(0.92); }
+      100% { opacity: 1; transform: scale(1.12); }
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 920px) {
+      .vote-layout,
+      .group-tree-layout {
+        grid-template-columns: 1fr;
+      }
+      .tree-stage {
+        position: static;
+      }
+      .tree-svg-wrap {
+        max-width: 240px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .poll-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 580px) {
+      .app-shell {
+        padding: 10px 10px 56px;
+      }
+      .wizard-panel, .host-section {
+        padding: 16px;
+      }
+      .avatar-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      .choice-grid,
+      .choice-grid.three-col {
+        grid-template-columns: 1fr;
+      }
+      .step-dots {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .brand-title {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="snowCanvas"></canvas>
+
+  <div class="app-shell">
+    <!-- 顶部栏 -->
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon">🎄</span>
+        <div>
+          <div class="brand-title">装饰我们的圣诞树 · 2026 派对大投票</div>
+          <div class="brand-sub">点选你的圣诞心愿挂件，生成通行证口令发群里，一键合票定档！</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="nav-pills" role="tablist">
+          <button class="nav-pill active" id="tabVoteBtn" onclick="switchMode('vote')">🎄 我要投票</button>
+          <button class="nav-pill" id="tabHostBtn" onclick="switchMode('host')">
+            🏆 群聊合票开奖台 <span class="badge-count" id="hostCountBadge">0</span>
+          </button>
+        </div>
+        <button class="sound-btn" id="soundToggleBtn" onclick="toggleSound()">🔔 音效：开</button>
+      </div>
+    </header>
+
+    <!-- 个人投票模式 -->
+    <main id="voteModeView" class="vote-layout">
+      <!-- 左侧：实时互动圣诞树 -->
+      <aside class="card tree-stage">
+        <div class="tree-stage-header">
+          <span class="tree-stage-title" id="treeOwnerTitle">✨ 你的专属圣诞树</span>
+          <span class="tree-progress-chip" id="treeProgressChip">准备装饰中</span>
+        </div>
+
+        <div class="tree-svg-wrap">
+          <svg id="christmasTreeSvg" viewBox="0 0 360 440" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="starGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff4b8" stop-opacity="0.95" />
+                <stop offset="60%" stop-color="#f5c86b" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#f5c86b" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient id="treeGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#2c8f5e" />
+                <stop offset="100%" stop-color="#134e32" />
+              </linearGradient>
+              <linearGradient id="treeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#267f53" />
+                <stop offset="100%" stop-color="#104229" />
+              </linearGradient>
+              <linearGradient id="treeGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1f6d47" />
+                <stop offset="100%" stop-color="#0b331f" />
+              </linearGradient>
+              <linearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#5c361d" />
+                <stop offset="50%" stop-color="#7c4b2a" />
+                <stop offset="100%" stop-color="#482915" />
+              </linearGradient>
+            </defs>
+
+            <!-- 雪地底座 -->
+            <ellipse cx="180" cy="396" rx="138" ry="22" fill="rgba(255,255,255,0.12)" />
+            <ellipse cx="180" cy="394" rx="115" ry="15" fill="rgba(236,247,241,0.18)" />
+
+            <!-- 树干 -->
+            <rect x="160" y="340" width="40" height="52" rx="6" fill="url(#trunkGrad)" />
+
+            <!-- 圣诞树三层枝叶 -->
+            <path d="M180 185 L52 346 Q180 364 308 346 Z" fill="url(#treeGrad3)" stroke="#38a66e" stroke-opacity="0.35" stroke-width="1.5" />
+            <path d="M180 120 L74 268 Q180 284 286 268 Z" fill="url(#treeGrad2)" stroke="#38a66e" stroke-opacity="0.38" stroke-width="1.5" />
+            <path d="M180 62 L102 184 Q180 198 258 184 Z" fill="url(#treeGrad1)" stroke="#4cc486" stroke-opacity="0.4" stroke-width="1.5" />
+
+            <!-- 树顶星图层（第1关解锁） -->
+            <g id="svgLayerStar"></g>
+
+            <!-- 场地花环图层（第3关解锁） -->
+            <g id="svgLayerGarland"></g>
+
+            <!-- 梦幻彩灯图层（第5关解锁） -->
+            <g id="svgLayerLights"></g>
+
+            <!-- 日期彩球图层（第2关解锁） -->
+            <g id="svgLayerDates"></g>
+
+            <!-- 美食挂件图层（第4关解锁） -->
+            <g id="svgLayerFood"></g>
+
+            <!-- 树下礼盒图层（第6关解锁） -->
+            <g id="svgLayerGifts"></g>
+
+            <!-- 个人名牌挂签 -->
+            <g id="svgLayerBadge"></g>
+          </svg>
+        </div>
+
+        <div class="tree-caption-bar" id="treeCaptionBar">
+          从<strong>第 1 关</strong>开始：填上你的名字，点亮树顶第一颗圣诞星！🌟
+        </div>
+      </aside>
+
+      <!-- 右侧：关卡表单 / 终点通行证 -->
+      <section class="card wizard-panel" id="wizardPanel"></section>
+    </main>
+
+    <!-- 主办人合票开奖台 -->
+    <main id="hostModeView" class="host-view hidden">
+      <!-- 导入面板 -->
+      <section class="card host-section">
+        <div class="section-head">
+          <h2 class="section-title">📥 导入群聊投票口令</h2>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-gold btn-sm" onclick="loadDemoVotes()">🎲 载入 5 位好友演示数据</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearAllVotes()">🗑️ 清空全部记录</button>
+          </div>
+        </div>
+        <p style="margin:0 0 10px; font-size:13px; color:var(--muted); line-height:1.5;">
+          直接把微信 / WhatsApp 群里大家发来的投票文字（可以整段一起复制，不需要手动删聊天名字和时间）粘贴在下面，系统会自动提取所有 <code>XMAS26:...</code> 口令并合票！（同名好友自动更新为最新一票）
+        </p>
+        <textarea id="importTextarea" class="textarea-input" rows="4" placeholder="在这里粘贴群聊里大家发的一条或多条投票口令..."></textarea>
+        <div class="action-row">
+          <button class="btn btn-green" onclick="importFromTextarea()">✨ 识别并加入圣诞树</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('importTextarea').value=''">清空输入框</button>
+        </div>
+      </section>
+
+      <!-- 总览 KPI & 群体圣诞树 -->
+      <section class="card host-section">
+        <div class="section-head">
+          <h2 class="section-title">🌟 大家的圣诞树 & 出席名单</h2>
+          <span class="field-hint">点击下方好友头像可查看 TA 的详细投票与备注</span>
+        </div>
+
+        <div class="kpi-grid" id="hostKpiGrid"></div>
+
+        <div class="group-tree-layout">
+          <div class="tree-svg-wrap" style="padding:10px;">
+            <svg id="groupTreeSvg" viewBox="0 0 360 440" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="180" cy="396" rx="140" ry="22" fill="rgba(255,255,255,0.12)" />
+              <rect x="160" y="340" width="40" height="52" rx="6" fill="#6b4024" />
+              <path d="M180 185 L50 346 Q180 364 310 346 Z" fill="#175939" />
+              <path d="M180 120 L72 268 Q180 284 288 268 Z" fill="#1d6d47" />
+              <path d="M180 62 L100 184 Q180 198 260 184 Z" fill="#258456" />
+              <polygon points="180,22 187,40 206,40 191,51 196,69 180,58 164,69 169,51 154,40 173,40" fill="#ffe599" />
+              <g id="groupTreeAvatars"></g>
+            </svg>
+          </div>
+
+          <div>
+            <div class="field-label" style="margin-bottom:10px;">
+              <span>👥 已收到投票的好友（点击看详情）</span>
+              <span class="field-hint" id="voterCountHint">0 位</span>
+            </div>
+            <div class="voter-chips" id="voterChipsWrap"></div>
+
+            <div id="notesSummaryBox" class="inline-alert hidden" style="margin-top:16px;"></div>
+
+            <div id="blessWallContainer" class="hidden" style="margin-top:16px;">
+              <div class="field-label"><span>💌 圣诞云祝福墙（这次去不了但送来祝福的朋友）</span></div>
+              <div class="bless-wall" id="blessWallGrid"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 最佳日期决策表 -->
+      <section class="card host-section">
+        <div class="section-head">
+          <h2 class="section-title">📅 最佳日期决策表（什么时候庆祝）</h2>
+          <span class="field-hint">按「可出席人数 + 首选加权分」自动推荐最佳日子</span>
+        </div>
+        <div class="date-rank-grid" id="dateRankGrid"></div>
+      </section>
+
+      <!-- 怎么庆祝票选排行榜 -->
+      <section class="card host-section">
+        <div class="section-head">
+          <h2 class="section-title">🎉 怎么庆祝票选排行榜</h2>
+          <span class="field-hint">含场地、美食、节目、交换礼物、穿搭与预算倾向</span>
+        </div>
+        <div class="poll-grid" id="pollResultsGrid"></div>
+        <div id="ideasWallBox" class="inline-alert hidden" style="margin-top:16px;"></div>
+      </section>
+
+      <!-- 一键生成群公告 -->
+      <section class="card host-section">
+        <div class="section-head">
+          <h2 class="section-title">📣 一键生成「群聊最终定档公告」</h2>
+          <button class="btn btn-gold btn-sm" onclick="copyAnnouncement()">📋 复制公告发回群里</button>
+        </div>
+        <textarea id="announcementText" class="textarea-input" rows="8" readonly></textarea>
+      </section>
+    </main>
+  </div>
+
+  <!-- 好友投票详情弹窗 -->
+  <div class="modal-backdrop" id="voterModal" onclick="if(event.target===this) closeVoterModal()">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 id="modalVoterTitle" style="margin:0; color:var(--gold-bright);">好友详情</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeVoterModal()">✕ 关闭</button>
+      </div>
+      <div id="modalVoterBody" style="font-size:13.5px; line-height:1.65; color:var(--cream);"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastEl">已复制！</div>
+
+  <script>
+    // ===========================
+    // 1. 游戏选项数据字典
+    // ===========================
+    const AVATARS = [
+      { id: "santa", emoji: "🎅", label: "圣诞老人" },
+      { id: "deer", emoji: "🦌", label: "红鼻麋鹿" },
+      { id: "ginger", emoji: "🍪", label: "姜饼人" },
+      { id: "snowman", emoji: "⛄", label: "雪宝" },
+      { id: "elf", emoji: "🧝", label: "圣诞精灵" },
+      { id: "cat", emoji: "🐱", label: "圣诞喵" },
+      { id: "bear", emoji: "🐻", label: "北极熊" },
+      { id: "tree", emoji: "🎄", label: "圣诞树精" }
+    ];
+
+    const ATTENDANCE_OPTIONS = [
+      { id: "going", icon: "🎉", title: "必到！风雨无阻", sub: "日期合适一定冲，圣诞派对不能没有我" },
+      { id: "maybe", icon: "📅", title: "看最后定哪天决定", sub: "先投出我有空的日子，大部队定好我就跟上" },
+      { id: "cant", icon: "💌", title: "这次去不了，但来挂个祝福", sub: "人不到心意到，留一句圣诞祝福挂在大家的树上" }
+    ];
+
+    const COMPANION_OPTIONS = [
+      { id: "solo", icon: "🙋", title: "自己一人来" },
+      { id: "plus1", icon: "👫", title: "带 1 位家属/朋友 (+1)" },
+      { id: "pet", icon: "🐾", title: "带毛孩子或其他伙伴" }
+    ];
+
+    const CANDIDATE_DATES = [
+      { id: "1212", month: "12月", day: "12", short: "12/12", label: "12月12日（周六）", hint: "圣诞前两周 · 周末开趴" },
+      { id: "1213", month: "12月", day: "13", short: "12/13", label: "12月13日（周日）", hint: "圣诞前两周 · 轻松周日" },
+      { id: "1219", month: "12月", day: "19", short: "12/19", label: "12月19日（周六）", hint: "圣诞前一周 · 氛围最浓" },
+      { id: "1220", month: "12月", day: "20", short: "12/20", label: "12月20日（周日）", hint: "圣诞前一周 · 周日聚会" }
+    ];
+
+    const TIME_SLOTS = [
+      { id: "day", icon: "☀️", title: "白天 / 下午场", sub: "午餐 + 下午茶 + 晒太阳聊天" },
+      { id: "night", icon: "🌙", title: "晚餐 + 夜晚场", sub: "亮灯微醺、更有圣诞夜晚氛围" },
+      { id: "any", icon: "✨", title: "全天都可以", sub: "白天晚上随时奉陪！" }
+    ];
+
+    const VENUE_OPTIONS = [
+      { id: "home", icon: "🏠", title: "温馨家里轰趴", sub: "自在舒服、可下厨或点外卖、窝着看片打游戏", short: "家里轰趴" },
+      { id: "airbnb", icon: "🏡", title: "租 Airbnb / 轰趴馆", sub: "仪式感拉满、适合布置拍大片、嗨到多晚都不怕", short: "Airbnb/轰趴馆" },
+      { id: "restaurant", icon: "🍽️", title: "圣诞氛围感餐厅", sub: "省心不用洗碗、吃漂亮圣诞餐 + 饭后续摊", short: "圣诞氛围餐厅" },
+      { id: "market", icon: "🎡", title: "圣诞市集 / 户外逛吃", sub: "吹晚风看圣诞灯海、热红酒边走边逛", short: "圣诞市集户外" }
+    ];
+
+    const FOOD_OPTIONS = [
+      { id: "hotpot", icon: "🍲", title: "热腾腾火锅 / 烤肉", sub: "冬日围炉快乐源泉，百吃不厌", short: "火锅/烤肉" },
+      { id: "western", icon: "🍗", title: "经典西式圣诞大餐", sub: "烤鸡 / 牛排 / 意面 / 现煮热红酒", short: "西式烤鸡热红酒" },
+      { id: "potluck", icon: "🍕", title: "一人一道菜 / 披萨炸鸡", sub: "Potluck 各显神通，或外卖拼盘大满足", short: "一人一道菜/披萨" },
+      { id: "dessert", icon: "🧁", title: "圣诞甜点 & DIY姜饼屋", sub: "树根蛋糕、草莓热可可、边做边吃超治愈", short: "甜点/DIY姜饼屋" }
+    ];
+
+    const ACTIVITY_OPTIONS = [
+      { id: "gift", icon: "🎁", title: "神秘交换礼物抽奖", sub: "圣诞灵魂环节，拆礼物瞬间超期待", short: "交换礼物" },
+      { id: "games", icon: "🎮", title: "Switch / 桌游大战", sub: "马里奥派对、分手厨房、狼人杀、UNO", short: "Switch/桌游" },
+      { id: "movie", icon: "🎬", title: "圣诞电影 + 微醺夜聊", sub: "真爱至上/小鬼当家 + 热红酒夜话", short: "电影+微醺夜聊" },
+      { id: "photo", icon: "📸", title: "圣诞穿搭打卡 + K歌", sub: "拍氛围感大合照 + 麦霸欢唱时间", short: "拍照+K歌" }
+    ];
+
+    const GIFT_RULES = [
+      { id: "heart", icon: "💝", title: "走心实用派", sub: "认真挑一份大家都会喜欢的温暖好礼", short: "走心实用" },
+      { id: "funny", icon: "🤪", title: "搞怪整活派", sub: "好笑、奇葩、意想不到的快乐源泉", short: "搞怪整活" },
+      { id: "elephant", icon: "🎲", title: "白象抢礼物 (White Elephant)", sub: "按号抽盲盒，后面的人可以抢前面拆开的礼物！", short: "白象抢礼物" },
+      { id: "none", icon: "🥂", title: "今年不换礼物", sub: "省去挑礼物烦恼，人来开心吃喝就好", short: "不换礼物" }
+    ];
+
+    const DRESS_OPTIONS = [
+      { id: "full", icon: "🎅", title: "全套圣诞氛围", sub: "红绿格纹、圣诞毛衣、鹿角发箍安排上！", short: "全套圣诞风" },
+      { id: "accent", icon: "🧣", title: "一点圣诞小元素", sub: "戴个小配饰或身上一件红/绿/白单品即可", short: "圣诞小元素" },
+      { id: "casual", icon: "👕", title: "怎么舒服怎么穿", sub: "不强制穿搭，随性自在最重要", short: "随性舒适" }
+    ];
+
+    const BUDGET_OPTIONS = [
+      { id: "light", icon: "🌱", title: "亲民轻松档", sub: "小小心意、重在相聚毫无负担", short: "亲民轻松档" },
+      { id: "mid", icon: "✨", title: "中等质感档", sub: "稍微讲究一点、圣诞仪式感刚刚好", short: "中等质感档" },
+      { id: "flex", icon: "🥂", title: "丰俭由人档", sub: "看最后选的场地和玩法大家平摊即可", short: "丰俭由人档" }
+    ];
+
+    const STEP_NAMES = ["1.签到星", "2.挑日期", "3.选场地", "4.定美食", "5.玩什么", "6.放礼盒"];
+    const STORAGE_KEY = "xmas2026_tree_votes_v1";
+
+    // ===========================
+    // 2. 应用状态
+    // ===========================
+    let currentMode = "vote"; // 'vote' | 'host'
+    let currentStep = 1;      // 1..6, 7 = 完成通行证页
+    let soundEnabled = true;
+    let audioCtx = null;
+    let groupVotes = [];
+
+    function createEmptyDraft() {
+      return {
+        name: "",
+        avatar: "deer",
+        attendance: "going",
+        companion: "solo",
+        blessing: "",
+        note: "",
+        dates: { "1212": "", "1213": "", "1219": "", "1220": "" }, // 'best' | 'ok' | 'no' | ''
+        timeSlot: "night",
+        venues: [],
+        foods: [],
+        activities: [],
+        idea: "",
+        giftRule: "elephant",
+        dressCode: "accent",
+        budget: "mid",
+        updatedAt: Date.now()
+      };
+    }
+
+    let draft = createEmptyDraft();
+
+    // ===========================
+    // 3. 轻音效引擎（Web Audio API）
+    // ===========================
+    function playChime(type = "bell") {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        const playNote = (freq, delay, dur, vol = 0.08) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + delay);
+          gain.gain.setValueAtTime(0.0001, now + delay);
+          gain.gain.exponentialRampToValueAtTime(vol, now + delay + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + delay);
+          osc.stop(now + delay + dur + 0.02);
+        };
+
+        if (type === "bell") {
+          playNote(880, 0, 0.22, 0.06);
+          playNote(1318.5, 0.05, 0.25, 0.04);
+        } else if (type === "step") {
+          playNote(659.25, 0, 0.16, 0.06);
+          playNote(783.99, 0.07, 0.22, 0.06);
+        } else if (type === "win") {
+          // 铃儿响叮当片段音符
+          [659.25, 659.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+            playNote(f, idx * 0.1, 0.3, 0.07);
+          });
+        }
+      } catch (e) {
+        // 忽略不支持 AudioContext 的环境
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById("soundToggleBtn").textContent = soundEnabled ? "🔔 音效：开" : "🔕 音效：关";
+      if (soundEnabled) playChime("bell");
+    }
+
+    // ===========================
+    // 4. UTF-8 Base64URL 口令编解码
+    // ===========================
+    function encodeVoteToken(voteObj) {
+      // 紧凑映射以缩短口令长度，同时保证完整信息无损还原
+      const payload = {
+        v: 1,
+        n: voteObj.name.trim(),
+        a: voteObj.avatar,
+        st: voteObj.attendance,
+        cp: voteObj.companion,
+        bl: voteObj.blessing.trim(),
+        nt: voteObj.note.trim(),
+        dt: voteObj.dates,
+        tm: voteObj.timeSlot,
+        vn: voteObj.venues,
+        fd: voteObj.foods,
+        ac: voteObj.activities,
+        id: voteObj.idea.trim(),
+        gf: voteObj.giftRule,
+        dr: voteObj.dressCode,
+        bg: voteObj.budget
+      };
+      const jsonStr = JSON.stringify(payload);
+      const bytes = new TextEncoder().encode(jsonStr);
+      let bin = "";
+      bytes.forEach(b => { bin += String.fromCharCode(b); });
+      const b64 = btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      return "XMAS26:" + b64;
+    }
+
+    function decodeVoteToken(tokenBody) {
+      const padded = tokenBody.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((tokenBody.length + 3) % 4);
+      const bin = atob(padded);
+      const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      const jsonStr = new TextDecoder().decode(bytes);
+      const p = JSON.parse(jsonStr);
+      if (!p || !p.n) throw new Error("无效的投票数据");
+      return {
+        name: String(p.n).slice(0, 24),
+        avatar: p.a || "deer",
+        attendance: p.st || "going",
+        companion: p.cp || "solo",
+        blessing: p.bl || "",
+        note: p.nt || "",
+        dates: p.dt || { "1212": "", "1213": "", "1219": "", "1220": "" },
+        timeSlot: p.tm || "night",
+        venues: Array.isArray(p.vn) ? p.vn : [],
+        foods: Array.isArray(p.fd) ? p.fd : [],
+        activities: Array.isArray(p.ac) ? p.ac : [],
+        idea: p.id || "",
+        giftRule: p.gf || "elephant",
+        dressCode: p.dr || "accent",
+        budget: p.bg || "mid",
+        updatedAt: Date.now()
+      };
+    }
+
+    function buildShareMessage(voteObj) {
+      const av = getAvatarObj(voteObj.avatar);
+      const token = encodeVoteToken(voteObj);
+      if (voteObj.attendance === "cant") {
+        return [
+          `🎄【2026圣诞派对云祝福】${av.emoji} ${voteObj.name}`,
+          `💌 状态：这次去不了，提前祝大家圣诞快乐！`,
+          voteObj.blessing ? `✨ 祝福语：「${voteObj.blessing}」` : "",
+          `🔑口令码(复制整段发群里): ${token}`
+        ].filter(Boolean).join("\n");
+      }
+
+      const bestDates = CANDIDATE_DATES.filter(d => voteObj.dates[d.id] === "best").map(d => d.short);
+      const okDates = CANDIDATE_DATES.filter(d => voteObj.dates[d.id] === "ok").map(d => d.short);
+      const statusText = voteObj.attendance === "going" ? "必到" : "看日期待定";
+      const cpText = voteObj.companion === "plus1" ? "+1家属/朋友" : (voteObj.companion === "pet" ? "+毛孩子" : "");
+      const tmObj = TIME_SLOTS.find(t => t.id === voteObj.timeSlot) || TIME_SLOTS[1];
+      const vnText = voteObj.venues.map(id => findShort(VENUE_OPTIONS, id)).join("、") || "都可以";
+      const fdText = voteObj.foods.map(id => findShort(FOOD_OPTIONS, id)).join("、") || "都可以";
+      const acText = voteObj.activities.map(id => findShort(ACTIVITY_OPTIONS, id)).join("、") || "都可以";
+      const gfText = findShort(GIFT_RULES, voteObj.giftRule);
+      const drText = findShort(DRESS_OPTIONS, voteObj.dressCode);
+      const bgText = findShort(BUDGET_OPTIONS, voteObj.budget);
+
+      const lines = [
+        `🎄【2026圣诞派对投票】${av.emoji} ${voteObj.name} (${statusText}${cpText ? " " + cpText : ""})`,
+        `📅 首选: ${bestDates.length ? bestDates.join(", ") : "无"} | 有空: ${okDates.length ? okDates.join(", ") : "无"} (${tmObj.title})`,
+        `🏠 场地: ${vnText} | 🍗 美食: ${fdText}`,
+        `🎲 节目: ${acText} | 🎁 ${gfText} | 🧣 ${drText} | 💰 ${bgText}`
+      ];
+      if (voteObj.idea) lines.push(`💡 脑洞: ${voteObj.idea}`);
+      if (voteObj.note) lines.push(`📝 备注: ${voteObj.note}`);
+      lines.push(`🔑口令码(复制整段发群里): ${token}`);
+      return lines.join("\n");
+    }
+
+    // ===========================
+    // 5. 辅助查询函数
+    // ===========================
+    function getAvatarObj(id) {
+      return AVATARS.find(a => a.id === id) || AVATARS[1];
+    }
+
+    function findShort(list, id) {
+      const item = list.find(x => x.id === id);
+      return item ? (item.short || item.title) : id;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById("toastEl");
+      el.textContent = msg;
+      el.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+    }
+
+    // ===========================
+    // 6. 实时渲染左侧 SVG 圣诞树
+    // ===========================
+    function renderPersonalTree() {
+      const av = getAvatarObj(draft.avatar);
+      const ownerTitle = document.getElementById("treeOwnerTitle");
+      ownerTitle.textContent = draft.name.trim()
+        ? `${av.emoji} ${draft.name.trim()} 的专属圣诞树`
+        : `✨ 你的专属圣诞树`;
+
+      // 统计装饰完成度
+      let unlocked = 0;
+      const hasIdentity = Boolean(draft.name.trim());
+      const hasDates = Object.values(draft.dates).some(v => v === "best" || v === "ok");
+      const hasVenues = draft.venues.length > 0;
+      const hasFoods = draft.foods.length > 0;
+      const hasActs = draft.activities.length > 0;
+      const hasFinal = currentStep >= 6;
+
+      if (hasIdentity) unlocked++;
+      if (hasDates) unlocked++;
+      if (hasVenues) unlocked++;
+      if (hasFoods) unlocked++;
+      if (hasActs) unlocked++;
+      if (hasFinal) unlocked++;
+
+      const chip = document.getElementById("treeProgressChip");
+      chip.textContent = draft.attendance === "cant" && currentStep === 7
+        ? "💌 祝福挂件已点亮"
+        : `已挂装饰 ${unlocked}/6`;
+
+      // 1) 树顶星
+      const starLayer = document.getElementById("svgLayerStar");
+      if (hasIdentity || currentStep > 1) {
+        starLayer.innerHTML = `
+          <g class="ornament-pop">
+            <circle cx="180" cy="46" r="34" fill="url(#starGlow)" />
+            <polygon points="180,14 188,36 211,36 193,49 200,71 180,58 160,71 167,49 149,36 172,36"
+              fill="#ffe588" stroke="#fff9d6" stroke-width="1.5" />
+            <text x="180" y="51" text-anchor="middle" font-size="16">${av.emoji}</text>
+          </g>`;
+      } else {
+        starLayer.innerHTML = `
+          <polygon points="180,22 186,38 203,38 189,48 194,64 180,54 166,64 171,48 157,38 174,38"
+            fill="rgba(255,255,255,0.12)" stroke="rgba(245,200,107,0.4)" stroke-dasharray="3 3" stroke-width="1.2" />`;
+      }
+
+      // 2) 花环图层（第3关场地）
+      const garlandLayer = document.getElementById("svgLayerGarland");
+      if (hasVenues) {
+        const venueIcons = draft.venues.map(v => (VENUE_OPTIONS.find(o => o.id === v) || {}).icon || "🏠");
+        garlandLayer.innerHTML = `
+          <g class="ornament-pop">
+            <path d="M126 146 Q180 175 234 146" fill="none" stroke="#f5c86b" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="6 4" />
+            <path d="M96 226 Q180 264 264 226" fill="none" stroke="#f5c86b" stroke-width="4" stroke-linecap="round" stroke-dasharray="7 5" />
+            <path d="M74 304 Q180 350 286 304" fill="none" stroke="#e85858" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 6" />
+            ${venueIcons[0] ? `<text x="180" y="162" text-anchor="middle" font-size="22">${venueIcons[0]}</text>` : ""}
+            ${venueIcons[1] ? `<text x="180" y="250" text-anchor="middle" font-size="22">${venueIcons[1]}</text>` : ""}
+          </g>`;
+      } else {
+        garlandLayer.innerHTML = "";
+      }
+
+      // 3) 彩灯图层（第5关活动）
+      const lightsLayer = document.getElementById("svgLayerLights");
+      if (hasActs) {
+        const lightCoords = [
+          [148, 128, "#ffe588"], [212, 128, "#ff6b6b"], [180, 144, "#67f0b6"],
+          [116, 210, "#ff6b6b"], [152, 232, "#ffe588"], [208, 232, "#74d0ff"], [244, 210, "#ff6b6b"],
+          [88, 294, "#67f0b6"], [132, 318, "#ffe588"], [180, 328, "#ff6b6b"], [228, 318, "#74d0ff"], [272, 294, "#ffe588"]
+        ];
+        lightsLayer.innerHTML = lightCoords.map(([x, y, c], idx) => `
+          <g class="twinkle-light" style="animation-delay:${(idx % 5) * 0.28}s">
+            <circle cx="${x}" cy="${y}" r="8" fill="${c}" opacity="0.26" />
+            <circle cx="${x}" cy="${y}" r="3.8" fill="${c}" />
+          </g>
+        `).join("");
+      } else {
+        lightsLayer.innerHTML = "";
+      }
+
+      // 4) 日期彩球图层（第2关）
+      const datesLayer = document.getElementById("svgLayerDates");
+      const ballSpots = [
+        { id: "1212", x: 136, y: 186 },
+        { id: "1213", x: 224, y: 186 },
+        { id: "1219", x: 122, y: 276 },
+        { id: "1220", x: 238, y: 276 }
+      ];
+      datesLayer.innerHTML = ballSpots.map(spot => {
+        const state = draft.dates[spot.id];
+        if (state !== "best" && state !== "ok") return "";
+        const isBest = state === "best";
+        const fill = isBest ? "#f7c756" : "#dc4646";
+        const stroke = isBest ? "#fff4b8" : "#ffb7b7";
+        const label = spot.id.slice(0, 2) + "/" + spot.id.slice(2);
+        return `
+          <g class="ornament-pop">
+            <line x1="${spot.x}" y1="${spot.y - 22}" x2="${spot.x}" y2="${spot.y - 14}" stroke="#f5c86b" stroke-width="1.5" />
+            <circle cx="${spot.x}" cy="${spot.y}" r="16" fill="${fill}" stroke="${stroke}" stroke-width="1.5" />
+            <circle cx="${spot.x - 5}" cy="${spot.y - 5}" r="4" fill="rgba(255,255,255,0.45)" />
+            <text x="${spot.x}" y="${spot.y + 4}" text-anchor="middle" font-size="9.5" font-weight="800" fill="${isBest ? '#2b1900' : '#fff'}">${label}</text>
+            ${isBest ? `<text x="${spot.x + 12}" y="${spot.y - 11}" font-size="11">⭐</text>` : ""}
+          </g>`;
+      }).join("");
+
+      // 5) 美食挂件图层（第4关）
+      const foodLayer = document.getElementById("svgLayerFood");
+      const foodSpots = [
+        [180, 206],
+        [152, 294],
+        [208, 294],
+        [180, 114]
+      ];
+      foodLayer.innerHTML = draft.foods.map((fid, idx) => {
+        const fObj = FOOD_OPTIONS.find(x => x.id === fid);
+        const pos = foodSpots[idx];
+        if (!fObj || !pos) return "";
+        return `
+          <g class="ornament-pop">
+            <circle cx="${pos[0]}" cy="${pos[1]}" r="15" fill="rgba(16,42,31,0.88)" stroke="#f5c86b" stroke-width="1.4" />
+            <text x="${pos[0]}" y="${pos[1] + 6}" text-anchor="middle" font-size="18">${fObj.icon}</text>
+          </g>`;
+      }).join("");
+
+      // 6) 树下礼盒图层（第6关或已完成）
+      const giftsLayer = document.getElementById("svgLayerGifts");
+      if (currentStep >= 6) {
+        const showGiftBox = draft.giftRule !== "none";
+        giftsLayer.innerHTML = `
+          <g class="ornament-pop">
+            <!-- 左侧红礼盒 -->
+            <rect x="78" y="352" width="44" height="36" rx="5" fill="#d94242" stroke="#ffaaaa" stroke-width="1.2" />
+            <rect x="97" y="352" width="6" height="36" fill="#f5c86b" />
+            <rect x="78" y="367" width="44" height="6" fill="#f5c86b" />
+            <!-- 右侧金绿礼盒 -->
+            <rect x="236" y="350" width="48" height="38" rx="5" fill="#2c8f5e" stroke="#8df0c2" stroke-width="1.2" />
+            <rect x="257" y="350" width="6" height="38" fill="#ffe588" />
+            <rect x="236" y="366" width="48" height="6" fill="#ffe588" />
+            ${showGiftBox ? `
+              <!-- 中央大礼物盒 -->
+              <rect x="130" y="362" width="38" height="30" rx="5" fill="#f5c86b" stroke="#fff4c4" stroke-width="1.2" />
+              <rect x="146" y="362" width="6" height="30" fill="#d94242" />
+              <text x="149" y="358" text-anchor="middle" font-size="14">🎀</text>
+            ` : ""}
+          </g>`;
+      } else {
+        giftsLayer.innerHTML = "";
+      }
+
+      // 7) 名牌挂签
+      const badgeLayer = document.getElementById("svgLayerBadge");
+      if (draft.name.trim()) {
+        const label = escapeHtml(draft.name.trim().slice(0, 8));
+        badgeLayer.innerHTML = `
+          <g class="ornament-pop">
+            <rect x="122" y="404" width="116" height="26" rx="13" fill="rgba(16,42,31,0.92)" stroke="#f5c86b" stroke-width="1.3" />
+            <text x="180" y="421" text-anchor="middle" font-size="12" font-weight="700" fill="#ffe599">${av.emoji} ${label}</text>
+          </g>`;
+      } else {
+        badgeLayer.innerHTML = "";
+      }
+
+      // 底部提示语
+      const captions = {
+        1: "🌟 <strong>第 1 关：</strong>写上你的名字、选个可爱头套并告诉大家能不能来！",
+        2: "🔮 <strong>第 2 关：</strong>点选 12月12/13/19/20 四天哪些有空，为圣诞树挂上日期彩球！",
+        3: "🏠 <strong>第 3 关：</strong>挑选喜欢的圣诞聚会场地，缠绕金色松枝花环！",
+        4: "🍗 <strong>第 4 关：</strong>选出最让你流口水的圣诞大餐，挂上美食挂件！",
+        5: "💡 <strong>第 5 关：</strong>决定派对玩什么节目，点亮整棵树的呼吸彩灯！",
+        6: "🎁 <strong>第 6 关：</strong>挑好交换礼物规则与圣诞穿搭，在树下堆满礼物盒！",
+        7: "🎉 <strong>装饰完成！</strong>复制下方通行证口令发到群里，等大家一起开奖定档！"
+      };
+      document.getElementById("treeCaptionBar").innerHTML = captions[currentStep] || captions[1];
+    }
+
+    // ===========================
+    // 7. 渲染右侧 6 大关卡 & 终点通行证
+    // ===========================
+    function renderWizard() {
+      const panel = document.getElementById("wizardPanel");
+      renderPersonalTree();
+
+      if (currentStep === 7) {
+        panel.innerHTML = renderPassportView();
+        return;
+      }
+
+      const dotsHtml = `
+        <div class="step-dots">
+          ${STEP_NAMES.map((label, idx) => {
+            const s = idx + 1;
+            const cls = s === currentStep ? "active" : (s < currentStep ? "done" : "");
+            return `<button class="step-dot-btn ${cls}" onclick="jumpStep(${s})">${label}</button>`;
+          }).join("")}
+        </div>`;
+
+      let bodyHtml = "";
+      if (currentStep === 1) bodyHtml = renderStep1();
+      else if (currentStep === 2) bodyHtml = renderStep2();
+      else if (currentStep === 3) bodyHtml = renderStep3();
+      else if (currentStep === 4) bodyHtml = renderStep4();
+      else if (currentStep === 5) bodyHtml = renderStep5();
+      else if (currentStep === 6) bodyHtml = renderStep6();
+
+      panel.innerHTML = dotsHtml + bodyHtml;
+    }
+
+    function renderStep1() {
+      const isCant = draft.attendance === "cant";
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 1 关 / 共 6 关 · 🌟 点亮树顶星</span>
+          <h2 class="step-title">先签到！你是哪位圣诞伙伴？</h2>
+          <p class="step-desc">输入群里大家认识你的昵称，并告诉大家你能不能参加今年的圣诞聚会。</p>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="nameInput">
+            <span>你的昵称 / 名字</span>
+            <span class="field-hint">必填 · 方便大家统计</span>
+          </label>
+          <input id="nameInput" class="text-input" type="text" maxlength="20"
+            value="${escapeHtml(draft.name)}"
+            placeholder="例如：阿杰、小鹿、Lisa..."
+            oninput="draft.name = this.value; renderPersonalTree();" />
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">
+            <span>挑选你的圣诞头套形象</span>
+            <span class="field-hint">会一起挂上群聊圣诞树</span>
+          </div>
+          <div class="avatar-grid">
+            ${AVATARS.map(av => `
+              <button type="button" class="avatar-chip ${draft.avatar === av.id ? "selected" : ""}"
+                onclick="draft.avatar='${av.id}'; playChime('bell'); renderWizard();">
+                <span class="emoji">${av.emoji}</span>
+                <span class="label">${av.label}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label"><span>出席状态</span></div>
+          <div class="choice-grid single-col">
+            ${ATTENDANCE_OPTIONS.map(opt => `
+              <button type="button" class="choice-card ${draft.attendance === opt.id ? "selected" : ""}"
+                onclick="draft.attendance='${opt.id}'; playChime('bell'); renderWizard();">
+                <span class="choice-icon">${opt.icon}</span>
+                <div class="choice-body">
+                  <div class="choice-title">${opt.title}</div>
+                  <div class="choice-sub">${opt.sub}</div>
+                </div>
+                <span class="choice-check">${draft.attendance === opt.id ? "✓" : ""}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        ${isCant ? `
+          <div class="field-block">
+            <label class="field-label" for="blessingInput">
+              <span>💌 写一句圣诞祝福挂在大圣诞树上吧！</span>
+              <span class="field-hint">选填</span>
+            </label>
+            <textarea id="blessingInput" class="textarea-input" maxlength="120"
+              placeholder="例如：虽然今年人不在，但祝大家圣诞快乐、抽到超棒的礼物！明年一定到！"
+              oninput="draft.blessing = this.value;">${escapeHtml(draft.blessing)}</textarea>
+          </div>
+          <div class="wizard-footer">
+            <span style="font-size:12.5px; color:var(--muted);">无需选日期和活动，可直接生成祝福卡</span>
+            <button type="button" class="btn btn-gold" onclick="finishBlessingOnly()">💌 直接生成圣诞祝福卡 →</button>
+          </div>
+        ` : `
+          <div class="field-block">
+            <div class="field-label"><span>同行人数</span></div>
+            <div class="choice-grid three-col">
+              ${COMPANION_OPTIONS.map(cp => `
+                <button type="button" class="choice-card ${draft.companion === cp.id ? "selected" : ""}"
+                  onclick="draft.companion='${cp.id}'; playChime('bell'); renderWizard();">
+                  <span class="choice-icon">${cp.icon}</span>
+                  <div class="choice-body"><div class="choice-title">${cp.title}</div></div>
+                </button>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="field-block">
+            <label class="field-label" for="noteInput">
+              <span>晚到 / 忌口 / 特别说明（选填）</span>
+            </label>
+            <input id="noteInput" class="text-input" type="text" maxlength="80"
+              value="${escapeHtml(draft.note)}"
+              placeholder="例如：周六晚上7点后才下班、不吃牛羊肉/海鲜过敏..."
+              oninput="draft.note = this.value;" />
+          </div>
+
+          <div class="wizard-footer">
+            <span></span>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">下一步：挑圣诞日期 🔮 →</button>
+          </div>
+        `}
+      `;
+    }
+
+    function renderStep2() {
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 2 关 / 共 6 关 · 🔮 挂上日期彩球</span>
+          <h2 class="step-title">什么时候庆祝最合适？</h2>
+          <p class="step-desc">对 12 月两个周末的 4 个候选日子表态，你的圣诞树会亮起对应的金球（首选）或红球（有空）！</p>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">
+            <span>候选日期表态（请尽量每个都点一下哦）</span>
+            <span class="field-hint">⭐首选计2分 · ✅可以计1分</span>
+          </div>
+          <div class="date-list">
+            ${CANDIDATE_DATES.map(d => {
+              const st = draft.dates[d.id];
+              const rowCls = st ? `state-${st}` : "";
+              return `
+                <div class="date-row ${rowCls}">
+                  <div class="date-info">
+                    <div class="date-badge">
+                      <span class="m">${d.month}</span>
+                      <span class="d">${d.day}</span>
+                    </div>
+                    <div>
+                      <div class="date-name">${d.label}</div>
+                      <div class="date-note">${d.hint}</div>
+                    </div>
+                  </div>
+                  <div class="tri-toggle">
+                    <button type="button" class="tri-btn ${st === "best" ? "active-best" : ""}"
+                      onclick="setDateState('${d.id}','best')">⭐ 首选</button>
+                    <button type="button" class="tri-btn ${st === "ok" ? "active-ok" : ""}"
+                      onclick="setDateState('${d.id}','ok')">✅ 可以</button>
+                    <button type="button" class="tri-btn ${st === "no" ? "active-no" : ""}"
+                      onclick="setDateState('${d.id}','no')">❌ 没空</button>
+                  </div>
+                </div>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label"><span>偏好什么时段聚会？</span></div>
+          <div class="choice-grid three-col">
+            ${TIME_SLOTS.map(t => `
+              <button type="button" class="choice-card ${draft.timeSlot === t.id ? "selected" : ""}"
+                onclick="draft.timeSlot='${t.id}'; playChime('bell'); renderWizard();">
+                <span class="choice-icon">${t.icon}</span>
+                <div class="choice-body">
+                  <div class="choice-title">${t.title}</div>
+                  <div class="choice-sub">${t.sub}</div>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button type="button" class="btn btn-ghost" onclick="prevStep()">← 上一步</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep()">下一步：选聚会场地 🏠 →</button>
+        </div>
+      `;
+    }
+
+    function renderStep3() {
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 3 关 / 共 6 关 · 🏠 缠绕松枝花环</span>
+          <h2 class="step-title">大家想在哪里庆祝？</h2>
+          <p class="step-desc">最多可选 2 个你最心仪的聚会场地基调，为圣诞树挂上金色花环！</p>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">
+            <span>选择场地基调（最多 2 项）</span>
+            <span class="field-hint">已选 ${draft.venues.length}/2</span>
+          </div>
+          <div class="choice-grid">
+            ${VENUE_OPTIONS.map(opt => {
+              const sel = draft.venues.includes(opt.id);
+              return `
+                <button type="button" class="choice-card ${sel ? "selected" : ""}"
+                  onclick="toggleMulti('venues', '${opt.id}', 2)">
+                  <span class="choice-icon">${opt.icon}</span>
+                  <div class="choice-body">
+                    <div class="choice-title">${opt.title}</div>
+                    <div class="choice-sub">${opt.sub}</div>
+                  </div>
+                  <span class="choice-check">${sel ? "✓" : ""}</span>
+                </button>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button type="button" class="btn btn-ghost" onclick="prevStep()">← 上一步</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep()">下一步：吃什么大餐 🍗 →</button>
+        </div>
+      `;
+    }
+
+    function renderStep4() {
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 4 关 / 共 6 关 · 🍗 挂上美食挂件</span>
+          <h2 class="step-title">圣诞大餐想吃点什么？</h2>
+          <p class="step-desc">可多选！把最想吃的圣诞美食直接挂上圣诞树吧！</p>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">
+            <span>选择你想吃的（可多选）</span>
+            <span class="field-hint">已选 ${draft.foods.length} 项</span>
+          </div>
+          <div class="choice-grid">
+            ${FOOD_OPTIONS.map(opt => {
+              const sel = draft.foods.includes(opt.id);
+              return `
+                <button type="button" class="choice-card ${sel ? "selected" : ""}"
+                  onclick="toggleMulti('foods', '${opt.id}', 4)">
+                  <span class="choice-icon">${opt.icon}</span>
+                  <div class="choice-body">
+                    <div class="choice-title">${opt.title}</div>
+                    <div class="choice-sub">${opt.sub}</div>
+                  </div>
+                  <span class="choice-check">${sel ? "✓" : ""}</span>
+                </button>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button type="button" class="btn btn-ghost" onclick="prevStep()">← 上一步</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep()">下一步：玩什么节目 🎲 →</button>
+        </div>
+      `;
+    }
+
+    function renderStep5() {
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 5 关 / 共 6 关 · 💡 点亮梦幻彩灯</span>
+          <h2 class="step-title">聚会要怎么玩才尽兴？</h2>
+          <p class="step-desc">挑选你最期待的派对节目（可多选），有具体想法或推荐的餐厅/游戏也欢迎写下来！</p>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label">
+            <span>派对节目（可多选）</span>
+            <span class="field-hint">已选 ${draft.activities.length} 项</span>
+          </div>
+          <div class="choice-grid">
+            ${ACTIVITY_OPTIONS.map(opt => {
+              const sel = draft.activities.includes(opt.id);
+              return `
+                <button type="button" class="choice-card ${sel ? "selected" : ""}"
+                  onclick="toggleMulti('activities', '${opt.id}', 4)">
+                  <span class="choice-icon">${opt.icon}</span>
+                  <div class="choice-body">
+                    <div class="choice-title">${opt.title}</div>
+                    <div class="choice-sub">${opt.sub}</div>
+                  </div>
+                  <span class="choice-check">${sel ? "✓" : ""}</span>
+                </button>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="ideaInput">
+            <span>💡 我有其他脑洞或具体餐厅/游戏提议（选填）</span>
+          </label>
+          <textarea id="ideaInput" class="textarea-input" maxlength="140"
+            placeholder="例如：想玩画画接龙、可以买热红酒料包现场煮、我知道市中心有家圣诞树餐厅很出片..."
+            oninput="draft.idea = this.value;">${escapeHtml(draft.idea)}</textarea>
+        </div>
+
+        <div class="wizard-footer">
+          <button type="button" class="btn btn-ghost" onclick="prevStep()">← 上一步</button>
+          <button type="button" class="btn btn-primary" onclick="nextStep()">最后一关：树下放礼盒 🎁 →</button>
+        </div>
+      `;
+    }
+
+    function renderStep6() {
+      return `
+        <div class="step-header">
+          <span class="step-kicker">第 6 关 / 共 6 关 · 🎁 树下放礼盒</span>
+          <h2 class="step-title">交换礼物、穿搭与预算倾向</h2>
+          <p class="step-desc">最后一关！定好派对的趣味小规则，马上就能生成你的专属圣诞派对通行证！</p>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label"><span>🎁 交换礼物怎么玩？</span></div>
+          <div class="choice-grid">
+            ${GIFT_RULES.map(opt => `
+              <button type="button" class="choice-card ${draft.giftRule === opt.id ? "selected" : ""}"
+                onclick="draft.giftRule='${opt.id}'; playChime('bell'); renderWizard();">
+                <span class="choice-icon">${opt.icon}</span>
+                <div class="choice-body">
+                  <div class="choice-title">${opt.title}</div>
+                  <div class="choice-sub">${opt.sub}</div>
+                </div>
+                <span class="choice-check">${draft.giftRule === opt.id ? "✓" : ""}</span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label"><span>🎅 圣诞穿搭 Dress Code 意愿</span></div>
+          <div class="choice-grid three-col">
+            ${DRESS_OPTIONS.map(opt => `
+              <button type="button" class="choice-card ${draft.dressCode === opt.id ? "selected" : ""}"
+                onclick="draft.dressCode='${opt.id}'; playChime('bell'); renderWizard();">
+                <span class="choice-icon">${opt.icon}</span>
+                <div class="choice-body">
+                  <div class="choice-title">${opt.title}</div>
+                  <div class="choice-sub">${opt.sub}</div>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="field-block">
+          <div class="field-label"><span>✨ 整体预算倾向（不设具体数字，看大家舒适度）</span></div>
+          <div class="choice-grid three-col">
+            ${BUDGET_OPTIONS.map(opt => `
+              <button type="button" class="choice-card ${draft.budget === opt.id ? "selected" : ""}"
+                onclick="draft.budget='${opt.id}'; playChime('bell'); renderWizard();">
+                <span class="choice-icon">${opt.icon}</span>
+                <div class="choice-body">
+                  <div class="choice-title">${opt.title}</div>
+                  <div class="choice-sub">${opt.sub}</div>
+                </div>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="wizard-footer">
+          <button type="button" class="btn btn-ghost" onclick="prevStep()">← 上一步</button>
+          <button type="button" class="btn btn-gold" onclick="completeVote()">✨ 点亮全部装饰 · 生成圣诞通行证！</button>
+        </div>
+      `;
+    }
+
+    function renderPassportView() {
+      const av = getAvatarObj(draft.avatar);
+      const isCant = draft.attendance === "cant";
+      const tagMap = {
+        going: { text: "🎉 必到 · 圣诞派对通行证", cls: "tag-going" },
+        maybe: { text: "📅 待定 · 看日期冲刺", cls: "tag-maybe" },
+        bless: { text: "💌 圣诞云祝福挂件", cls: "tag-bless" }
+      };
+      const tag = isCant ? tagMap.bless : (draft.attendance === "going" ? tagMap.going : tagMap.maybe);
+
+      const bestDates = CANDIDATE_DATES.filter(d => draft.dates[d.id] === "best").map(d => d.label);
+      const okDates = CANDIDATE_DATES.filter(d => draft.dates[d.id] === "ok").map(d => d.label);
+      const tmObj = TIME_SLOTS.find(t => t.id === draft.timeSlot) || TIME_SLOTS[1];
+      const shareText = buildShareMessage(draft);
+
+      return `
+        <div class="step-header">
+          <span class="step-kicker">🎉 装饰完毕 · 通行证已生成</span>
+          <h2 class="step-title">${isCant ? "你的圣诞云祝福卡已挂好！" : "你的 2026 圣诞派对通行证！"}</h2>
+          <p class="step-desc">点击下方<strong>「一键复制群聊投票口令」</strong>发到群里，主办人把大家的口令贴进开奖台就能直接定出最好玩的日子！</p>
+        </div>
+
+        <div class="passport-card">
+          <div class="passport-top">
+            <div class="passport-user">
+              <div class="passport-avatar">${av.emoji}</div>
+              <div>
+                <div class="passport-name">${escapeHtml(draft.name)}</div>
+                <span class="passport-status-tag ${tag.cls}">${tag.text}</span>
+              </div>
+            </div>
+            <div style="text-align:right; font-size:12px; color:var(--muted);">
+              <div>NO. 2026-XMAS</div>
+              <div>${isCant ? "💌 遥寄圣诞祝福" : (draft.companion === "plus1" ? "👫 +1 同行" : (draft.companion === "pet" ? "🐾 带毛孩子" : "🙋 单人出行"))}</div>
+            </div>
+          </div>
+
+          ${isCant ? `
+            <div class="passport-rows">
+              <div class="passport-row">
+                <span class="passport-row-k">💌 圣诞祝福</span>
+                <span class="passport-row-v">${escapeHtml(draft.blessing || "祝大家圣诞快乐，玩得开心！")}</span>
+              </div>
+            </div>
+          ` : `
+            <div class="passport-rows">
+              <div class="passport-row">
+                <span class="passport-row-k">⭐ 首选日期</span>
+                <span class="passport-row-v">${bestDates.length ? bestDates.join("、") : "暂无首选"}</span>
+              </div>
+              <div class="passport-row">
+                <span class="passport-row-k">✅ 有空日期</span>
+                <span class="passport-row-v">${okDates.length ? okDates.join("、") : "暂无"}（偏好：${tmObj.title}）</span>
+              </div>
+              <div class="passport-row">
+                <span class="passport-row-k">🏠 想去场地</span>
+                <span class="passport-row-v">${draft.venues.map(v => findShort(VENUE_OPTIONS, v)).join("、") || "都可以"}</span>
+              </div>
+              <div class="passport-row">
+                <span class="passport-row-k">🍗 想吃美食</span>
+                <span class="passport-row-v">${draft.foods.map(f => findShort(FOOD_OPTIONS, f)).join("、") || "都可以"}</span>
+              </div>
+              <div class="passport-row">
+                <span class="passport-row-k">🎲 想玩节目</span>
+                <span class="passport-row-v">${draft.activities.map(a => findShort(ACTIVITY_OPTIONS, a)).join("、") || "都可以"}</span>
+              </div>
+              <div class="passport-row">
+                <span class="passport-row-k">🎁 礼物规则</span>
+                <span class="passport-row-v">${findShort(GIFT_RULES, draft.giftRule)} · ${findShort(DRESS_OPTIONS, draft.dressCode)} · ${findShort(BUDGET_OPTIONS, draft.budget)}</span>
+              </div>
+              ${draft.idea ? `<div class="passport-row"><span class="passport-row-k">💡 脑洞提议</span><span class="passport-row-v">${escapeHtml(draft.idea)}</span></div>` : ""}
+              ${draft.note ? `<div class="passport-row"><span class="passport-row-k">📝 个人备注</span><span class="passport-row-v">${escapeHtml(draft.note)}</span></div>` : ""}
+            </div>
+          `}
+
+          <div class="field-label" style="margin-top:10px;">
+            <span>🔑 群聊投票口令（发到群里即可合票）</span>
+          </div>
+          <div class="token-box" id="shareTokenBox">${escapeHtml(shareText)}</div>
+
+          <div class="action-row">
+            <button type="button" class="btn btn-gold" onclick="copyShareToken()">📋 一键复制群聊投票口令</button>
+            <button type="button" class="btn btn-green" onclick="switchMode('host')">🏆 去合票开奖台看看</button>
+            <button type="button" class="btn btn-ghost" onclick="currentStep=1; renderWizard();">✏️ 修改我的选择</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ===========================
+    // 8. 关卡交互控制
+    // ===========================
+    function setDateState(dateId, state) {
+      draft.dates[dateId] = draft.dates[dateId] === state ? "" : state;
+      playChime("bell");
+      renderWizard();
+    }
+
+    function toggleMulti(field, id, max) {
+      const arr = draft[field];
+      const idx = arr.indexOf(id);
+      if (idx >= 0) {
+        arr.splice(idx, 1);
+      } else {
+        if (arr.length >= max) {
+          showToast(`最多只能选 ${max} 项哦，先取消一项再选吧～`);
+          return;
+        }
+        arr.push(id);
+      }
+      playChime("bell");
+      renderWizard();
+    }
+
+    function validateStep(step) {
+      if (step === 1 && !draft.name.trim()) {
+        showToast("请先输入你的昵称，大家才知道是谁来过啦～");
+        const inp = document.getElementById("nameInput");
+        if (inp) inp.focus();
+        return false;
+      }
+      if (step === 2 && draft.attendance !== "cant") {
+        const anyPicked = Object.values(draft.dates).some(v => v === "best" || v === "ok" || v === "no");
+        if (!anyPicked) {
+          showToast("请至少对 1 个日期点击「首选 / 可以 / 没空」表态哦！");
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function nextStep() {
+      if (!validateStep(currentStep)) return;
+      currentStep = Math.min(6, currentStep + 1);
+      playChime("step");
+      renderWizard();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function prevStep() {
+      currentStep = Math.max(1, currentStep - 1);
+      renderWizard();
+    }
+
+    function jumpStep(target) {
+      if (target > 1 && !draft.name.trim()) {
+        showToast("请先在第 1 关填上你的昵称哦！");
+        return;
+      }
+      if (draft.attendance === "cant" && target > 1) {
+        showToast("当前选择了「去不了送祝福」，如需投日期活动请先切换出席状态～");
+        return;
+      }
+      currentStep = target;
+      renderWizard();
+    }
+
+    function finishBlessingOnly() {
+      if (!validateStep(1)) return;
+      draft.companion = "solo";
+      saveVoteToPool(draft);
+      currentStep = 7;
+      playChime("win");
+      renderWizard();
+      showToast("💌 圣诞云祝福卡生成成功！已同步存入本机开奖台");
+    }
+
+    function completeVote() {
+      if (!validateStep(1)) { currentStep = 1; renderWizard(); return; }
+      saveVoteToPool(draft);
+      currentStep = 7;
+      playChime("win");
+      renderWizard();
+      showToast("🎉 通行证已生成！快复制口令发到群里吧！");
+    }
+
+    function copyShareToken() {
+      const txt = buildShareMessage(draft);
+      copyText(txt, "✅ 已复制投票口令！快直接粘贴发到微信/WhatsApp群里吧！");
+    }
+
+    function copyText(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => showToast(successMsg))
+          .catch(() => fallbackCopy(text, successMsg));
+      } else {
+        fallbackCopy(text, successMsg);
+      }
+    }
+
+    function fallbackCopy(text, successMsg) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+        showToast(successMsg);
+      } catch (e) {
+        showToast("复制失败，请长按框内文字手动复制");
+      }
+      document.body.removeChild(ta);
+    }
+
+    // ===========================
+    // 9. 合票池存储与主办人开奖台
+    // ===========================
+    function loadPoolFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) groupVotes = parsed;
+        }
+      } catch (e) {
+        groupVotes = [];
+      }
+      updateHostBadge();
+    }
+
+    function persistPool() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(groupVotes));
+      } catch (e) {}
+      updateHostBadge();
+    }
+
+    function updateHostBadge() {
+      document.getElementById("hostCountBadge").textContent = groupVotes.length;
+    }
+
+    function saveVoteToPool(voteObj) {
+      const clone = JSON.parse(JSON.stringify(voteObj));
+      clone.name = clone.name.trim();
+      clone.updatedAt = Date.now();
+      const idx = groupVotes.findIndex(v => v.name.toLowerCase() === clone.name.toLowerCase());
+      if (idx >= 0) groupVotes[idx] = clone;
+      else groupVotes.push(clone);
+      persistPool();
+    }
+
+    function importFromTextarea() {
+      const raw = document.getElementById("importTextarea").value;
+      const matches = [...raw.matchAll(/XMAS26:([A-Za-z0-9_-]+)/g)];
+      if (!matches.length) {
+        showToast("未识别到 XMAS26: 开头的口令码，请检查是否完整复制了口令！");
+        return;
+      }
+
+      let okCount = 0;
+      let errCount = 0;
+      matches.forEach(m => {
+        try {
+          const decoded = decodeVoteToken(m[1]);
+          saveVoteToPool(decoded);
+          okCount++;
+        } catch (e) {
+          errCount++;
+        }
+      });
+
+      playChime("win");
+      renderHostDashboard();
+      showToast(`✨ 成功导入 ${okCount} 份投票${errCount ? `（${errCount}条格式有误已跳过）` : "！"}`);
+    }
+
+    function deleteVoteByIndex(idx) {
+      const target = groupVotes[idx];
+      if (!target) return;
+      groupVotes.splice(idx, 1);
+      persistPool();
+      renderHostDashboard();
+      showToast(`已移除 ${target.name} 的投票`);
+    }
+
+    function clearAllVotes() {
+      groupVotes = [];
+      persistPool();
+      renderHostDashboard();
+      showToast("已清空所有合票记录");
+    }
+
+    function loadDemoVotes() {
+      const demos = [
+        {
+          name: "小鹿",
+          avatar: "deer",
+          attendance: "going",
+          companion: "plus1",
+          blessing: "",
+          note: "周六下午3点后随时都行",
+          dates: { "1212": "ok", "1213": "no", "1219": "best", "1220": "ok" },
+          timeSlot: "night",
+          venues: ["airbnb", "home"],
+          foods: ["hotpot", "western"],
+          activities: ["gift", "games"],
+          idea: "可以买拍立得相纸拍圣诞大合照！",
+          giftRule: "elephant",
+          dressCode: "full",
+          budget: "mid"
+        },
+        {
+          name: "阿杰",
+          avatar: "santa",
+          attendance: "going",
+          companion: "solo",
+          blessing: "",
+          note: "我有 Switch 和 4 个手柄可以带去",
+          dates: { "1212": "best", "1213": "ok", "1219": "best", "1220": "no" },
+          timeSlot: "night",
+          venues: ["airbnb", "restaurant"],
+          foods: ["hotpot", "potluck"],
+          activities: ["games", "gift"],
+          idea: "提前玩分手厨房或者马里奥派对！",
+          giftRule: "elephant",
+          dressCode: "accent",
+          budget: "mid"
+        },
+        {
+          name: "糖糖",
+          avatar: "cat",
+          attendance: "going",
+          companion: "solo",
+          blessing: "",
+          note: "不吃香菜，其他都爱",
+          dates: { "1212": "ok", "1213": "best", "1219": "best", "1220": "best" },
+          timeSlot: "any",
+          venues: ["home", "airbnb"],
+          foods: ["western", "dessert"],
+          activities: ["gift", "movie", "photo"],
+          idea: "我可以提前烤一盘圣诞姜饼曲奇带来",
+          giftRule: "heart",
+          dressCode: "full",
+          budget: "mid"
+        },
+        {
+          name: "Kevin",
+          avatar: "bear",
+          attendance: "maybe",
+          companion: "solo",
+          blessing: "",
+          note: "12/12 白天要加班，12/19 全天稳",
+          dates: { "1212": "no", "1213": "ok", "1219": "ok", "1220": "ok" },
+          timeSlot: "night",
+          venues: ["restaurant", "airbnb"],
+          foods: ["hotpot", "western"],
+          activities: ["gift", "movie"],
+          idea: "",
+          giftRule: "funny",
+          dressCode: "accent",
+          budget: "flex"
+        },
+        {
+          name: "Momo",
+          avatar: "ginger",
+          attendance: "cant",
+          companion: "solo",
+          blessing: "12月正好出差不在本地😭 祝大家圣诞快乐！一定要多拍合照发群里！",
+          note: "",
+          dates: { "1212": "", "1213": "", "1219": "", "1220": "" },
+          timeSlot: "night",
+          venues: [],
+          foods: [],
+          activities: [],
+          idea: "",
+          giftRule: "none",
+          dressCode: "casual",
+          budget: "light"
+        }
+      ];
+
+      demos.forEach(d => saveVoteToPool(d));
+      playChime("win");
+      renderHostDashboard();
+      showToast("🎲 已载入 5 位好友的演示投票！快看看开奖结果");
+    }
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.getElementById("voteModeView").classList.toggle("hidden", mode !== "vote");
+      document.getElementById("hostModeView").classList.toggle("hidden", mode !== "host");
+      document.getElementById("tabVoteBtn").classList.toggle("active", mode === "vote");
+      document.getElementById("tabHostBtn").classList.toggle("active", mode === "host");
+      if (mode === "host") renderHostDashboard();
+      else renderWizard();
+    }
+
+    // ===========================
+    // 10. 渲染开奖大屏统计结果
+    // ===========================
+    function renderHostDashboard() {
+      const totalVoters = groupVotes.length;
+      const activeVoters = groupVotes.filter(v => v.attendance !== "cant");
+      const goingVoters = groupVotes.filter(v => v.attendance === "going");
+      const maybeVoters = groupVotes.filter(v => v.attendance === "maybe");
+      const blessVoters = groupVotes.filter(v => v.attendance === "cant");
+
+      let estimatedHeadcount = 0;
+      activeVoters.forEach(v => {
+        estimatedHeadcount += v.companion === "plus1" ? 2 : 1;
+      });
+
+      // 1) KPI
+      document.getElementById("hostKpiGrid").innerHTML = `
+        <div class="kpi-box">
+          <div class="kpi-num">${totalVoters}</div>
+          <div class="kpi-label">已投票好友数</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-num">${estimatedHeadcount} 人</div>
+          <div class="kpi-label">预计到场总人数 (含+1)</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-num">${goingVoters.length} / ${maybeVoters.length}</div>
+          <div class="kpi-label">必到 / 看日期待定</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-num">${blessVoters.length}</div>
+          <div class="kpi-label">💌 送祝福挂件</div>
+        </div>
+      `;
+
+      // 2) 群聊大圣诞树头像挂件
+      const spots = [
+        [180, 114], [142, 148], [218, 148],
+        [124, 200], [180, 198], [236, 200],
+        [100, 256], [154, 258], [206, 258], [260, 256],
+        [82, 316], [134, 318], [180, 320], [226, 318], [278, 316]
+      ];
+      document.getElementById("groupTreeAvatars").innerHTML = groupVotes.slice(0, spots.length).map((v, i) => {
+        const av = getAvatarObj(v.avatar);
+        const [x, y] = spots[i];
+        const ring = v.attendance === "going" ? "#3ecf8e" : (v.attendance === "maybe" ? "#f5c86b" : "#e05858");
+        return `
+          <g style="cursor:pointer;" onclick="openVoterModal(${i})">
+            <circle cx="${x}" cy="${y}" r="18" fill="rgba(16,42,31,0.92)" stroke="${ring}" stroke-width="2" />
+            <text x="${x}" y="${y + 6}" text-anchor="middle" font-size="18">${av.emoji}</text>
+            <text x="${x}" y="${y + 29}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff9ee">${escapeHtml(v.name.slice(0, 5))}</text>
+          </g>`;
+      }).join("");
+
+      // 3) 好友标签与备注汇总
+      document.getElementById("voterCountHint").textContent = `${totalVoters} 位`;
+      document.getElementById("voterChipsWrap").innerHTML = totalVoters
+        ? groupVotes.map((v, idx) => {
+            const av = getAvatarObj(v.avatar);
+            const stIcon = v.attendance === "going" ? "🎉" : (v.attendance === "maybe" ? "📅" : "💌");
+            return `
+              <span class="voter-chip" onclick="openVoterModal(${idx})">
+                <span>${av.emoji} ${escapeHtml(v.name)} ${stIcon}${v.attendance !== "cant" && v.companion === "plus1" ? "+1" : ""}</span>
+                <button class="voter-del" title="移除" onclick="event.stopPropagation(); deleteVoteByIndex(${idx})">✕</button>
+              </span>`;
+          }).join("")
+        : `<span style="color:var(--muted); font-size:13px;">还没有投票记录哦～ 可以先点击上方「🎲 载入演示数据」或粘贴群聊口令！</span>`;
+
+      const notes = activeVoters.filter(v => v.note.trim());
+      const notesBox = document.getElementById("notesSummaryBox");
+      if (notes.length) {
+        notesBox.classList.remove("hidden");
+        notesBox.innerHTML = `<strong>📝 忌口 / 晚到 / 注意事项汇总：</strong><br>` +
+          notes.map(v => `• <strong>${escapeHtml(v.name)}</strong>：${escapeHtml(v.note)}`).join("<br>");
+      } else {
+        notesBox.classList.add("hidden");
+      }
+
+      // 4) 祝福墙
+      const blessWrap = document.getElementById("blessWallContainer");
+      const blessGrid = document.getElementById("blessWallGrid");
+      if (blessVoters.length) {
+        blessWrap.classList.remove("hidden");
+        blessGrid.innerHTML = blessVoters.map(v => {
+          const av = getAvatarObj(v.avatar);
+          return `
+            <div class="bless-note">
+              <div style="font-weight:800; color:var(--gold-bright); margin-bottom:4px;">${av.emoji} ${escapeHtml(v.name)}</div>
+              <div>${escapeHtml(v.blessing || "提前祝大家圣诞快乐！")}</div>
+            </div>`;
+        }).join("");
+      } else {
+        blessWrap.classList.add("hidden");
+      }
+
+      // 5) 最佳日期排序表
+      const dateStats = CANDIDATE_DATES.map(d => {
+        const bestNames = [];
+        const okNames = [];
+        const noNames = [];
+        let headCount = 0;
+        let score = 0;
+
+        activeVoters.forEach(v => {
+          const st = (v.dates || {})[d.id];
+          const p = v.companion === "plus1" ? 2 : 1;
+          const label = v.name + (v.companion === "plus1" ? "(+1)" : "");
+          if (st === "best") {
+            bestNames.push(label);
+            headCount += p;
+            score += 2;
+          } else if (st === "ok") {
+            okNames.push(label);
+            headCount += p;
+            score += 1;
+          } else if (st === "no") {
+            noNames.push(v.name);
+          }
+        });
+
+        return { ...d, bestNames, okNames, noNames, availPeople: bestNames.length + okNames.length, headCount, score };
+      }).sort((a, b) => (b.headCount - a.headCount) || (b.score - a.score));
+
+      const bestDateObj = dateStats[0];
+      document.getElementById("dateRankGrid").innerHTML = dateStats.map((d, idx) => {
+        const isWinner = idx === 0 && d.headCount > 0;
+        return `
+          <div class="date-rank-card ${isWinner ? "winner" : ""}">
+            <div class="date-rank-top">
+              <div class="date-rank-title">
+                <span>${d.label}</span>
+                ${isWinner ? `<span class="winner-pill">🏆 最佳推荐日</span>` : ""}
+              </div>
+              <div class="date-rank-score">共 ${d.headCount} 人可参加（首选 ${d.bestNames.length} 票 · 综合分 ${d.score}）</div>
+            </div>
+            <div class="date-who">
+              <span>⭐ <strong>首选：</strong>${d.bestNames.length ? d.bestNames.map(escapeHtml).join("、") : "无"}</span>
+              <span>｜ ✅ <strong>有空：</strong>${d.okNames.length ? d.okNames.map(escapeHtml).join("、") : "无"}</span>
+              <span>｜ ❌ <strong>去不了：</strong>${d.noNames.length ? d.noNames.map(escapeHtml).join("、") : "无人冲突"}</span>
+            </div>
+          </div>`;
+      }).join("");
+
+      // 6) 怎么庆祝票选排行榜
+      const pollConfigs = [
+        { title: "⏰ 偏好时段", options: TIME_SLOTS, getter: v => [v.timeSlot] },
+        { title: "🏠 在哪过（场地基调）", options: VENUE_OPTIONS, getter: v => v.venues || [] },
+        { title: "🍗 吃什么（圣诞大餐）", options: FOOD_OPTIONS, getter: v => v.foods || [] },
+        { title: "🎲 玩什么（派对节目）", options: ACTIVITY_OPTIONS, getter: v => v.activities || [] },
+        { title: "🎁 交换礼物怎么玩", options: GIFT_RULES, getter: v => [v.giftRule] },
+        { title: "🎅 圣诞穿搭 & 预算倾向", options: [...DRESS_OPTIONS, ...BUDGET_OPTIONS], getter: v => [v.dressCode, v.budget] }
+      ];
+
+      const topWinners = {};
+      document.getElementById("pollResultsGrid").innerHTML = pollConfigs.map((cfg, cIdx) => {
+        const counts = {};
+        cfg.options.forEach(o => counts[o.id] = 0);
+        activeVoters.forEach(v => {
+          cfg.getter(v).forEach(id => {
+            if (counts[id] !== undefined) counts[id]++;
+          });
+        });
+
+        const sorted = [...cfg.options].sort((a, b) => counts[b.id] - counts[a.id]);
+        topWinners[cIdx] = sorted[0];
+        const maxVote = Math.max(1, activeVoters.length);
+
+        return `
+          <div class="poll-box">
+            <h4>${cfg.title}</h4>
+            ${sorted.map(o => {
+              const c = counts[o.id];
+              const pct = activeVoters.length ? Math.round((c / maxVote) * 100) : 0;
+              return `
+                <div class="bar-item">
+                  <div class="bar-meta">
+                    <span>${o.icon} ${o.short || o.title}</span>
+                    <span style="color:var(--gold-bright); font-weight:700;">${c} 票 (${pct}%)</span>
+                  </div>
+                  <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+                </div>`;
+            }).join("")}
+          </div>`;
+      }).join("");
+
+      // 脑洞墙
+      const ideas = activeVoters.filter(v => v.idea && v.idea.trim());
+      const ideasBox = document.getElementById("ideasWallBox");
+      if (ideas.length) {
+        ideasBox.classList.remove("hidden");
+        ideasBox.innerHTML = `<strong>💡 大家的派对脑洞提议：</strong><br>` +
+          ideas.map(v => `• <strong>${escapeHtml(v.name)}</strong>：${escapeHtml(v.idea)}`).join("<br>");
+      } else {
+        ideasBox.classList.add("hidden");
+      }
+
+      // 7) 生成群公告文案
+      const annEl = document.getElementById("announcementText");
+      if (!activeVoters.length) {
+        annEl.value = "暂未导入任何可出席好友的投票，请先粘贴群聊口令或载入演示数据~";
+      } else {
+        const winTime = topWinners[0] ? topWinners[0].title : "晚餐 + 夜晚场";
+        const winVenue = topWinners[1] ? `${topWinners[1].icon} ${topWinners[1].title}` : "待定";
+        const winFood = topWinners[2] ? `${topWinners[2].icon} ${topWinners[2].title}` : "待定";
+        const winAct = topWinners[3] ? `${topWinners[3].icon} ${topWinners[3].title}` : "待定";
+        const winGift = topWinners[4] ? `${topWinners[4].icon} ${topWinners[4].title}` : "待定";
+
+        // Dress code 和 Budget 分别取最高票
+        const dressCounts = {};
+        const budgetCounts = {};
+        activeVoters.forEach(v => {
+          dressCounts[v.dressCode] = (dressCounts[v.dressCode] || 0) + 1;
+          budgetCounts[v.budget] = (budgetCounts[v.budget] || 0) + 1;
+        });
+        const topDress = [...DRESS_OPTIONS].sort((a, b) => (dressCounts[b.id] || 0) - (dressCounts[a.id] || 0))[0];
+        const topBudget = [...BUDGET_OPTIONS].sort((a, b) => (budgetCounts[b.id] || 0) - (budgetCounts[a.id] || 0))[0];
+        const attendNames = [...bestDateObj.bestNames, ...bestDateObj.okNames];
+
+        annEl.value = [
+          `🎄【2026 圣诞派对 · 投票结果出炉啦！】🎄`,
+          `感谢 ${totalVoters} 位小伙伴点亮圣诞树！根据大家投票统计，最优选方案如下：`,
+          ``,
+          `📅 敲定日期：${bestDateObj.label} · ${winTime}`,
+          `👥 当日可到（${bestDateObj.headCount}人）：${attendNames.join("、") || "待确认"}`,
+          `🏠 聚会场地：${winVenue}`,
+          `🍗 圣诞大餐：${winFood}`,
+          `🎲 派对节目：${winAct}`,
+          `🎁 交换礼物：${winGift}`,
+          `🎅 穿搭风格：${topDress.icon} ${topDress.title}（${topBudget.title}）`,
+          bestDateObj.noNames.length ? `💌 暂时缺席的小伙伴：${bestDateObj.noNames.join("、")}（下次一定补聚！）` : "",
+          ``,
+          `没问题的话我们就按这个定档啦，大家举手确认一下～🙌✨`
+        ].filter(line => line !== "").join("\n");
+      }
+    }
+
+    function copyAnnouncement() {
+      const txt = document.getElementById("announcementText").value;
+      copyText(txt, "📣 已复制最终定档公告！快发回群里吧！");
+    }
+
+    function openVoterModal(idx) {
+      const v = groupVotes[idx];
+      if (!v) return;
+      const av = getAvatarObj(v.avatar);
+      document.getElementById("modalVoterTitle").textContent = `${av.emoji} ${v.name} 的投票明细`;
+      const body = document.getElementById("modalVoterBody");
+      if (v.attendance === "cant") {
+        body.innerHTML = `
+          <p><strong>状态：</strong>💌 这次去不了，送来圣诞祝福</p>
+          <p><strong>祝福语：</strong>${escapeHtml(v.blessing || "祝大家圣诞快乐！")}</p>
+        `;
+      } else {
+        const bestD = CANDIDATE_DATES.filter(d => v.dates[d.id] === "best").map(d => d.short).join("、") || "无";
+        const okD = CANDIDATE_DATES.filter(d => v.dates[d.id] === "ok").map(d => d.short).join("、") || "无";
+        const noD = CANDIDATE_DATES.filter(d => v.dates[d.id] === "no").map(d => d.short).join("、") || "无";
+        body.innerHTML = `
+          <p><strong>出席状态：</strong>${v.attendance === "going" ? "🎉 必到" : "📅 看日期待定"}（${v.companion === "plus1" ? "+1同行" : v.companion === "pet" ? "带毛孩子" : "单人"}）</p>
+          <p><strong>⭐ 首选日期：</strong>${bestD} ｜ <strong>✅ 有空：</strong>${okD} ｜ <strong>❌ 没空：</strong>${noD}</p>
+          <p><strong>⏰ 偏好时段：</strong>${(TIME_SLOTS.find(t => t.id === v.timeSlot) || {}).title || "夜晚"}</p>
+          <p><strong>🏠 场地：</strong>${(v.venues || []).map(x => findShort(VENUE_OPTIONS, x)).join("、") || "都可以"}</p>
+          <p><strong>🍗 美食：</strong>${(v.foods || []).map(x => findShort(FOOD_OPTIONS, x)).join("、") || "都可以"}</p>
+          <p><strong>🎲 节目：</strong>${(v.activities || []).map(x => findShort(ACTIVITY_OPTIONS, x)).join("、") || "都可以"}</p>
+          <p><strong>🎁 规则：</strong>${findShort(GIFT_RULES, v.giftRule)} · ${findShort(DRESS_OPTIONS, v.dressCode)} · ${findShort(BUDGET_OPTIONS, v.budget)}</p>
+          ${v.idea ? `<p><strong>💡 脑洞：</strong>${escapeHtml(v.idea)}</p>` : ""}
+          ${v.note ? `<p><strong>📝 备注：</strong>${escapeHtml(v.note)}</p>` : ""}
+        `;
+      }
+      document.getElementById("voterModal").classList.add("open");
+    }
+
+    function closeVoterModal() {
+      document.getElementById("voterModal").classList.remove("open");
+    }
+
+    // ===========================
+    // 11. Canvas 飘雪背景
+    // ===========================
+    function initSnow() {
+      const canvas = document.getElementById("snowCanvas");
+      const ctx = canvas.getContext("2d");
+      let w = 0, h = 0;
+      const flakes = [];
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      const count = Math.min(75, Math.floor(window.innerWidth / 16));
+      for (let i = 0; i < count; i++) {
+        flakes.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          r: Math.random() * 2.6 + 1.1,
+          speed: Math.random() * 0.9 + 0.4,
+          drift: Math.random() * 0.6 - 0.3,
+          alpha: Math.random() * 0.55 + 0.25
+        });
+      }
+
+      function tick() {
+        ctx.clearRect(0, 0, w, h);
+        flakes.forEach(f => {
+          f.y += f.speed;
+          f.x += f.drift + Math.sin(f.y * 0.015) * 0.25;
+          if (f.y > h + 5) { f.y = -5; f.x = Math.random() * w; }
+          if (f.x > w + 5) f.x = -5;
+          if (f.x < -5) f.x = w + 5;
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 250, 240, ${f.alpha})`;
+          ctx.fill();
+        });
+        requestAnimationFrame(tick);
+      }
+      tick();
+    }
+
+    // ===========================
+    // 12. 启动初始化
+    // ===========================
+    loadPoolFromStorage();
+    initSnow();
+    renderWizard();
+  </script>
+</body>
+</html>
